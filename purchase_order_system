@@ -1,0 +1,123 @@
+
+#lets build a class now 
+class PurchaseOrder:
+    def __init__(self, order_id, supplier):
+        self.order_id = order_id
+        self.supplier = supplier
+        self.items = {}
+        self.status = "Pending"
+
+#we need to create methods for the same.
+    def add_item(self, product_name, quantity):
+        self.items[product_name] = self.items.get(product_name, 0) + quantity
+
+    def remove_item(self, product_name):
+        if product_name in self.items:
+            del self.items[product_name]
+        else:
+            print(f"Warning: {product_name} not found in the order.")
+
+    def update_status(self, new_status):
+        self.status = new_status
+
+    def get_total_items(self):
+        return sum(self.items.values())
+
+    def change_item_quantity(self, product_name, new_quantity):
+        if product_name in self.items:
+            self.items[product_name] = new_quantity
+        else:
+            print(f"Warning: {product_name} not found in the order.")
+
+    def __str__(self):
+        return (f"Order ID: {self.order_id}, Supplier: {self.supplier}, "
+                f"Items: {self.items}, Status: {self.status}")
+    
+# now we need to create a class for supplier
+class Supplier:
+    def __init__(self, name, contact):
+        self.name = name
+        self.contact = contact
+        self.orders = []
+
+# now lets add diffrent menthods to the class
+    def create_order(self, order_id):
+        new_order = PurchaseOrder(order_id, self.name)
+        self.orders.append(new_order)
+        return new_order
+
+    def find_order(self, order_id):
+        for order in self.orders:
+            if order.order_id == order_id:
+                return order
+        print(f"Warning: Order ID {order_id} not found.")
+        return None
+
+    def get_order_summary(self):
+        summary = []
+        for order in self.orders:
+            summary.append(str(order))
+        return "\n".join(summary)
+
+    def delete_order(self, order_id):
+        order = self.find_order(order_id)
+        if order:
+            self.orders.remove(order)
+            print(f"Order ID {order_id} deleted.")
+        else:
+            print(f"Warning: Cannot delete Order ID {order_id} as it does not exist.")
+
+    def __str__(self):
+        return f"Supplier Name: {self.name}, Contact: {self.contact}, Total Orders: {len(self.orders)}"
+    
+# Lets creat the supliers now 
+
+supplier1 = Supplier("Motorola", "contact@Motorola.com")
+supplier2 = Supplier("Samsung", "contact@Samsung.com")
+
+# now we need to create orders for both the suppliers motorola and samsung 
+
+order1 = supplier1.create_order(2024001)
+order1.add_item("Watch", 15)
+order1.add_item("Smartphone", 50)
+order1.update_status("Ordered")
+
+order2 = supplier1.create_order(2024002)
+order2.add_item("Earphones", 20)
+order2.add_item("Chargers", 50)
+order2.update_status("Received")
+
+order3 = supplier2.create_order(2024003)
+order3.add_item("Smartphone", 70)
+order3.add_item("Chargers", 70)
+order3.update_status("Ordered")
+
+order4 = supplier2.create_order(2024004)
+order4.add_item("Smartwatch", 30)
+order4.add_item("Smartring", 10)
+order4.update_status("Pending")
+
+#now we can try to modify the order
+
+order1.change_item_quantity("Watch", 25)
+order2.remove_item("Earphones")
+order4.add_item("earphone",20)
+
+#now lets use the get_total_items(), find_order(), delete_order() and get_order_summary() fuctions 
+
+# Using get_total_items()
+print(f"Total items in Order 2024001 (Supplier A): {supplier1.find_order(2024001).get_total_items()}")
+
+# Using find_order()
+order_to_find = supplier1.find_order(2024001)
+if order_to_find:
+    print(f"\nFound Order:\n{order_to_find}")
+
+# Using delete_order()
+print("\nDeleting Order 2024002 (Supplier A)...")
+supplier1.delete_order(2024002)
+
+# Using get_order_summary()
+print("\nSupplier A Order Summary after deletion:")
+print(supplier1.get_order_summary())
+
