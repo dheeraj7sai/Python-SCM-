@@ -1,0 +1,200 @@
+# inventory_management.py
+
+#TASK 1: Calculate the average demand and max demand based on historical data. Print the average demand.
+    
+#List of historical demand values:
+historical_demand = [100, 120, 80, 90, 110]
+
+#Answer
+def Caluculate_Avg_Demand(numbers):
+    avg_demand = sum(numbers)/len(numbers)
+    return avg_demand
+
+print("average demand= ", Caluculate_Avg_Demand(historical_demand)),
+
+def Caluculate_Max_Demand(numbers):
+    max_demand = max(numbers)
+    return max_demand
+
+print("Maximum_Demand=",Caluculate_Max_Demand(historical_demand))
+
+avg_demand = Caluculate_Avg_Demand(historical_demand)
+max_demand = Caluculate_Max_Demand(historical_demand)
+
+#TASK 2:Calculate the average lead time and max lead time based on previous orders.
+order_data = [
+            {'order_date': '2023-01-01', 'delivery_date': '2023-01-05'},
+            {'order_date': '2023-01-10', 'delivery_date': '2023-01-13'},
+            {'order_date': '2023-01-20', 'delivery_date': '2023-01-25'}
+        ]
+
+#PRINT HERE YOUR RESULT
+
+#Answer
+
+#following is to converts string to date
+from datetime import datetime
+
+order_data = [
+    {'order_date': '2023-01-01', 'delivery_date': '2023-01-05'},
+    {'order_date': '2023-01-10', 'delivery_date': '2023-01-13'},
+    {'order_date': '2023-01-20', 'delivery_date': '2023-01-25'}
+]
+
+def calculate_lead_time(order_data):
+    lead_times = []
+
+    # Calculate lead time for each order
+    for order in order_data:
+        order_date = datetime.strptime(order['order_date'], "%Y-%m-%d")
+        delivery_date = datetime.strptime(order['delivery_date'], "%Y-%m-%d")
+        lead_time = (delivery_date - order_date).days
+        lead_times.append(lead_time)
+
+    average_lead_time = sum(lead_times) / len(lead_times)
+    max_lead_time = max(lead_times)
+
+    return average_lead_time, max_lead_time
+
+average_lead_time, max_lead_time = calculate_lead_time(order_data)
+print("Average Lead Time:" , average_lead_time , "days")
+print("Max Lead Time: " , max_lead_time , "days")
+
+"""
+#TASK 3:Calculate the safety stock based on average demand, lead time, and desired service level based on the following formula:
+#Safety stock = (maximum daily sales x maximum lead time) – (average daily sales x average lead time)
+
+average_demand = #Result of TASK 1
+max_demand = #Result of TASK 1
+average_lead_time = #Result of TASK 2
+max_lead_time = #Result of TASK 2
+"""
+#PRINT HERE YOUR RESULT
+#Answer
+
+def caluclate_safety_stock (max_demand, max_lead_time, average_lead_time, avg_demand):
+    safety_stock = (max_demand*max_lead_time)-(average_lead_time * avg_demand)
+    return safety_stock
+
+print("safety stock =",caluclate_safety_stock(Caluculate_Max_Demand(historical_demand), max_lead_time, average_lead_time, Caluculate_Avg_Demand(historical_demand)))
+
+safety_stock = caluclate_safety_stock(Caluculate_Max_Demand(historical_demand), max_lead_time, average_lead_time, Caluculate_Avg_Demand(historical_demand))
+
+
+def calculate_reorder_point(average_demand, lead_time, safety_stock):
+    #TASK 4: Calculate the reorder point based on average demand, lead time, and safety stock in this function and return its value. 
+    #Reorder point = Average Lead Time*Average Demand + Safety Stock
+    """"
+
+    :param average_demand: Average demand per day
+    :param lead_time: Average lead time in days
+    :param safety_stock: Calculated safety stock
+    :return: Reorder point quantity
+    """
+    pass
+#Answer
+
+def Caluclate_reorder_point (avg_demand,average_lead_time, safety_stock):
+    reorder_point = (avg_demand*average_lead_time)+safety_stock
+    return reorder_point
+
+print("Reorder_Point = ", Caluclate_reorder_point(avg_demand,average_lead_time, safety_stock))
+reorder_point = Caluclate_reorder_point(avg_demand, average_lead_time, safety_stock)
+
+print
+#TASK 5: Call the function with the average_demand of TASK 1, average lead time of TASK 2, and safety stock of TASK 3.
+ #Answer
+ 
+print("Recall Maximum_Demand=",Caluculate_Max_Demand(historical_demand)),
+print("Recall average demand= ", Caluculate_Avg_Demand(historical_demand)),
+print("Recall Avg_lead_time_and_Max_Lead_Time = ", calculate_lead_time(order_data)),
+print("Recall safety stock =",caluclate_safety_stock(max_demand, max_lead_time, average_lead_time, avg_demand)),
+
+
+def optimize_reorder_point(historical_demand, order_data, holding_cost, stockout_cost):
+    #TASK 6: Optimize the reorder level based on historical data and cost factors for this function. Use the previous tasks but do not assume the given data.
+
+    """
+    :param historical_demand: List of historical demand values
+    :param order_data: List of dictionaries containing order and delivery dates 
+    :return: Optimal reorder point
+    """
+    pass
+# Answer 
+
+historical_demand_1 = [100, 120, 80, 90, 110]
+order_data_1 = [
+            {'order_date': '2023-01-01', 'delivery_date': '2023-01-05'},
+            {'order_date': '2023-01-10', 'delivery_date': '2023-01-13'},
+            {'order_date': '2023-01-20', 'delivery_date': '2023-01-25'}
+        ]
+
+from datetime import datetime
+
+def calculate_avg_demand(demand_data):
+    return sum(demand_data) / len(demand_data)
+
+def calculate_max_demand(demand_data):
+    return max(demand_data)
+
+def calculate_lead_time(order_data):
+    lead_times = []
+    for order in order_data:
+        order_date = datetime.strptime(order['order_date'], "%Y-%m-%d")
+        delivery_date = datetime.strptime(order['delivery_date'], "%Y-%m-%d")
+        lead_time = (delivery_date - order_date).days
+        lead_times.append(lead_time)
+    return lead_times
+
+def calculate_avg_and_max_lead_time(lead_times):
+    average_lead_time = sum(lead_times) / len(lead_times)
+    max_lead_time = max(lead_times)
+    return average_lead_time, max_lead_time
+
+def calculate_safety_stock(max_demand, max_lead_time, avg_demand, avg_lead_time):
+    return (max_demand * max_lead_time) - (avg_demand * avg_lead_time)
+
+
+def optimize_reorder_point(historical_demand_1, order_data_1):
+
+    avg_demand = calculate_avg_demand(historical_demand)
+    max_demand = calculate_max_demand(historical_demand)
+
+    lead_times = calculate_lead_time(order_data)
+    average_lead_time, max_lead_time = calculate_avg_and_max_lead_time(lead_times)
+
+    safety_stock = calculate_safety_stock(max_demand, max_lead_time, avg_demand, average_lead_time)
+
+    reorder_point = (avg_demand * average_lead_time) + safety_stock
+    return reorder_point
+
+
+optimized_reorder_point = optimize_reorder_point(historical_demand_1, order_data_1)
+print("Optimized Reorder Point =", optimized_reorder_point)
+
+#TASK 7: Call the function with the following data:
+order_data_3 = [
+            {'order_date': '2023-01-01', 'delivery_date': '2023-01-08'},
+            {'order_date': '2023-01-08', 'delivery_date': '2023-01-13'},
+            {'order_date': '2023-01-14', 'delivery_date': '2023-01-25'}
+        ]
+historical_demand_3 = [200, 220, 380, 190, 210]
+
+#Answer
+
+avg_demand_3 = Caluculate_Avg_Demand(historical_demand_3)
+max_demand_3 = Caluculate_Max_Demand(historical_demand_3)
+
+lead_times_3 = calculate_lead_time(order_data_3)
+average_lead_time_3 = sum(lead_times_3) / len(lead_times_3)
+max_lead_time_3 = max(lead_times_3)
+
+safety_stock_3 = caluclate_safety_stock(max_demand_3, max_lead_time_3, average_lead_time_3, avg_demand_3)
+reorder_point_3 = Caluclate_reorder_point(avg_demand_3, average_lead_time_3, safety_stock_3)
+
+print("Avg_Demand_3=", avg_demand_3)
+print("Max_Demand_3=", max_demand_3)
+print("Average Lead Time 3 =", average_lead_time_3, "days")
+print("Max Lead Time 3 =", max_lead_time_3, "days")
+print("Safety Stock 3 =", safety_stock_3)
+print("Reorder Point 3 =", reorder_point_3)
