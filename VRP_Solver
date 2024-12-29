@@ -1,0 +1,213 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import random
+
+class CVRP:
+    def __init__(self, vehicle_capacity):
+        self.vehicle_capacity = vehicle_capacity
+        self.locations, self.capacities = self.define_locations_with_capacities()
+        self.distance_matrix, self.location_names = self.compute_distance_matrix()
+
+
+    #DO NOT TOUCH THIS FUNCTION!
+    def define_locations_with_capacities(self):
+        locations = {
+            "Depot": (50, 50),
+            "Customer 1": (random.randint(0,100), random.randint(0,100)),
+            "Customer 2": (random.randint(0,100), random.randint(0,100)),
+            "Customer 3": (random.randint(0,100), random.randint(0,100)),
+            "Customer 4": (random.randint(0,100), random.randint(0,100)),
+            "Customer 5": (random.randint(0,100), random.randint(0,100))
+        }
+        capacities = {
+            "Depot": 0,  # Depot has no demand
+            "Customer 1": random.randint(10,50),
+            "Customer 2": random.randint(10,50),
+            "Customer 3": random.randint(10,50),
+            "Customer 4": random.randint(10,50),
+            "Customer 5": random.randint(10,50),
+        }
+        return locations, capacities
+
+
+    #TASK 1: Compute the Distance Matrix
+    def compute_distance_matrix(self):
+        """
+        Compute the Euclidean distance matrix between all locations. Euclidean distances are the shortest routes between two points. You can calculate them by using Pythagoras's law.
+        https://en.wikipedia.org/wiki/Euclidean_distance
+
+        Args:
+            locations (dict): Dictionary containing location names and (x, y) coordinates.
+
+        Returns:
+            distance_matrix (2D numpy array): Matrix of distances between locations.
+            location_names (list): List of location names in the same order as the matrix.
+        """
+        #Caluclate the number of outputs
+        num_locations = len(self.locations)
+        #Creates a list of names
+        location_names = list(self.locations.keys())
+        #create a square matrix with the below codes
+        distance_matrix = np.zeros((num_locations, num_locations))
+
+        distance_matrix[1][1] = 0 #This allows you to fill the distance between all positions in a matrix with the size of num_locations. In this case the distance between point 1 and point 1 is of course 0.
+#now select the i and j varables from the num_locations 
+        for i in range(num_locations):
+            for j in range(num_locations):
+                if i != j:
+                    x1, y1 = self.locations[location_names[i]]
+                    x2, y2 = self.locations[location_names[j]]
+                    # below is the euclidean formula that needs to be executed on ranges.
+                    distance_matrix[i][j] = np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+        print("Distance Matrix:\n", distance_matrix)
+        return distance_matrix, location_names
+
+    #Task 2: Visualize the Locations
+    def plot_locations(self):
+        """
+        Plot the locations on a 2D map. A 2D map can be easily printed using the matplotlib packages, which has been introduced as plt. Please look at the example for the depot below and add the code
+        for it to contain all the locations of customers and also written what is there demand.
+
+        Args:
+            locations (dict): Dictionary containing location names and (x, y) coordinates.
+        """
+        plt.scatter(self.locations["Depot"][0], self.locations["Depot"][1], label="Depot")
+        plt.text(self.locations["Depot"][0], self.locations["Depot"][1], f"{"Depot"}\n No Demand", fontsize=9, ha='right')
+
+
+# Create a loop over all the location
+        for name, (x, y) in self.locations.items():
+        #Ignore depot
+            if name != "Depot":
+            #retrive the demand numbers
+               demand = self.capacities[name]
+            #plot the customer locations
+               plt.scatter(x, y, color="green", label=f"{name} (Demand: {demand})")
+               plt.text(x, y, f"{name}\nDemand: {demand}", fontsize=9, ha='right')
+
+        plt.xlabel("X Coordinate")
+        plt.ylabel("Y Coordinate")
+        plt.title("Locations Map")
+        plt.legend()
+        plt.grid()
+
+        # After having given instructions on how the plot should look, the function below really creates it.
+        plt.show()
+        plt.savefig('plot1.png')
+
+
+    #Task 3: Nearest Neighbor Heuristic for CVRP with Guaranteed Visit
+    def nearest_neighbor_cvrp_with_guaranteed_visit(self, start_index=0):
+        """
+        Solve a simplified CVRP using a nearest neighbor heuristic, ensuring all customers are visited.
+
+        Args:
+            distance_matrix (2D numpy array): Matrix of distances between locations.
+            capacities (dict): Dictionary containing demand at each location.
+            vehicle_capacity (int): Maximum capacity of the vehicle.
+            start_index (int): Index of the starting location (default is 0 for the depot).
+
+        Returns:
+            route (list): Ordered list of location indices representing the route.
+            total_distance (float): Total travel distance of the route.
+        """
+
+        #Use this list of variables below to already get going! Hence, do not changing anything here!
+        #Extract the location names
+        location_names = self.location_names
+        #Number of locations
+        num_locations = len(self.distance_matrix)
+        #every location is visited
+        visited = [False] * num_locations #Note that this is a list of false values that is used for the while loop!
+        route = [start_index] #This list will contain all the destinations in the correct order.
+        total_distance = 0
+        current_load = 0
+
+        #decide the start location
+        current_location = start_index
+        #vehicle should start always at the depo
+        visited[current_location] = True
+
+        while not all(visited[1:]):  # Continue until all customers are visited
+                    #Allow for distance comparision
+                    nearest_distance = float('inf')
+                    #store the index of next customer 
+                    next_location = None
+        # Find the nearest unvisited customer within the capacity limit
+        #Each customer to find the nearest feasible location
+        for i in range(1, num_locations):
+            # next customer can be served without exceeding the vehicle’s capacity
+            if not visited[i] and current_load + self.capacities[location_names[i]] <= self.vehicle_capacity:
+                #compare to find the nearest customer
+                distance = self.distance_matrix[current_location][i]
+                #nearest neighbor heuristic is applied 
+                if distance < nearest_distance:
+                    nearest_distance = distance
+                    next_location = i
+
+        # If no feasible customer, return to depot to reset load
+        if next_location is None:  
+            #below is journey back to depot and reset
+            total_distance += self.distance_matrix[current_location][start_index]
+            route.append(start_index)
+            current_location = start_index
+            current_load = 0
+        else:
+            #track the total distance traveled
+            total_distance += nearest_distance
+            #update the sequence of locations visited
+            route.append(next_location)
+            #make sure that the customer is not visited in the past
+            visited[next_location] = True
+            #load represents the current useage
+            current_load += self.capacities[location_names[next_location]]
+            #this shows where the truck is
+            current_location = next_location
+
+        # Return to the depot at the end
+        total_distance += self.distance_matrix[current_location][start_index]
+        route.append(start_index)
+
+        return route, total_distance
+
+    #DO NOT TOUCH THIS FUNCTION!
+    def plot_route(self, route):
+        # Extract the coordinates for the route
+        route_coords = [self.locations[self.location_names[i]] for i in route]
+
+        # Plot the locations and show capacities
+        for name, (x, y) in self.locations.items():
+            plt.scatter(x, y, label=f"{name} (Demand: {self.capacities[name]})")
+            plt.text(x, y, f"{name}\nDemand: {self.capacities[name]}", fontsize=9, ha='right')
+
+        # Plot the route
+        x_coords, y_coords = zip(*route_coords)
+        plt.plot(x_coords, y_coords, '-o', color='red', label='Route')
+
+        plt.xlabel("X Coordinate")
+        plt.ylabel("Y Coordinate")
+        plt.title("CVRP Route with Capacities")
+        plt.legend()
+        plt.grid()
+        plt.show()
+        plt.savefig('plot2.png')
+
+
+    # Main Function to Run the Template
+    def run(self):
+        self.plot_locations()
+
+        vehicle_capacity = 100  # Set the vehicle capacity limit
+        route, total_distance = self.nearest_neighbor_cvrp_with_guaranteed_visit()
+
+        route_names = [self.location_names[i] for i in route]
+        print("Optimal Route:", " -> ".join(route_names))
+        print("Total Distance:", total_distance)
+
+        self.plot_route(route)
+
+
+# Run the main function
+if __name__ == "__main__":
+    cvrp_solver = CVRP(vehicle_capacity=100)
+    cvrp_solver.run()
