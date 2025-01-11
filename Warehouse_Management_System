@@ -1,0 +1,196 @@
+# The first class we try to build is Product, and this class has 5 attributes.
+# Product_id will help us to capture the product,and
+# Later, we will change the location between 2 products based on recent demand attribute.
+class Product:
+   def __init__(self, product_id, name, category, quantity, recent_demand):
+        self.product_id = product_id
+        self.name = name
+        self.category = category
+        self.location = None
+        self.quantity = quantity
+        self.recent_demand = recent_demand
+
+    def update_location(self, new_location):
+        self.location = new_location
+
+    # The second class is Warehouse, it has 2 attribute of name and layout itself.
+
+
+# and here we have 5 methods:
+# 1. display all the items (everything in the inventory dictionary)
+# 2. add product to inventory dictionary (and its location at the meantime)
+# 3. remove the product from the inventory dictionary
+# 4. update the layout attribute
+# 5. swap locations of two products based on the logic that: the more demand it has, the closer it should be to the dock
+# 6. try to visualize the warehouse
+class Warehouse:
+    def __init__(self, name, layout):
+        self.name = name
+        self.layout = layout  # A 2D list of rows and columns
+        self.inventory = {}
+
+    def display_items(self):
+        print("Current Inventory:")
+        for product_id, product in self.inventory.items():
+            print(f"ID: {product_id}, Name: {product.name}, Location: {product.location}, quantity: {product.quantity
+            },recent_demand:{product.recent_demand}")
+
+    def add_product(self, product, location):
+        if location not in self.layout:
+            print("Invalid location.")
+            return
+        product.update_location(location)
+        self.inventory[product.product_id] = product
+
+    def remove_product(self, product_id):
+        if product_id in self.inventory:
+            del self.inventory[product_id]
+        else:
+            print("Product not found.")
+
+    def update_layout(self, new_layout):
+        self.layout = new_layout
+        print("Warehouse layout updated.")
+
+    def swap_products_based_on_demand(self, product_id_1, product_id_2, dock):
+        """Swap the locations of two products based on their demand and proximity to the dock."""
+        if product_id_1 not in self.inventory or product_id_2 not in self.inventory:
+            print("One or both products not found.")
+            return
+
+        product_1 = self.inventory[product_id_1]
+        product_2 = self.inventory[product_id_2]
+
+        # Check which product has higher demand and which is closer to the dock
+        distance_1 = dock.closest_to_dock(product_1.location)
+        distance_2 = dock.closest_to_dock(product_2.location)
+        location1 = product_1.location
+        location2 = product_2.location
+        if product_1.recent_demand > product_2.recent_demand:
+            # Product with higher demand should be closer to dock, so swap if needed
+            if distance_1 > distance_2:
+                product_1.update_location(product_2.location)
+                product_2.update_location(location1)
+                print(f"Swapped positions of {product_1.name} and {product_2.name}.")
+        else:
+            # Product 2 has higher demand, swap positions
+            if distance_2 > distance_1:
+                product_2.update_location(product_1.location)
+                product_1.update_location(location2)
+                print(f"Swapped positions of {product_1.name} and {product_2.name}.")
+
+    def visualize_layout(self, dock_position):
+        """Display the warehouse layout as a simple text grid."""
+        # Get the size of the layout
+        # Here pos means the tuple, "0" or "1" means the first number of the second number of the
+        # Tuple, and max means trying to capture the biggest number, and we plus 1 here because the
+        # Lay out starts from 0
+        rows = max(pos[0] for pos in self.layout) + 1
+        cols = max(pos[1] for pos in self.layout) + 1
+        # Create a blank grid
+        grid = [['.' for _ in range(cols)] for _ in range(rows)]
+        # Place the dock
+        dock_row, dock_col = dock_position
+        grid[dock_row][dock_col] = 'D'
+        # Place products in the grid
+        for product in self.inventory.values():
+            row, col = product.location
+            grid[row][col] = product.name[0].upper()  # Use the first letter of the product name
+        # Print the grid
+        print("\nWarehouse Layout:")
+        for row in grid:
+            print(row)
+
+        # The third class is Dock ,which has two attributes: dock_id and dock_position
+
+
+# And here we have 1 method to calculate the distance between dock and product
+
+class Dock:
+    def __init__(self, dock_id, dock_position):
+        self.dock_id = dock_id
+        self.dock_position = dock_position
+
+    def closest_to_dock(self, product_location):
+        """Calculate the distance from the dock to a product's location."""
+        row_diff = abs(product_location[0] - self.dock_position[0])
+        column_diff = abs(product_location[1] - self.dock_position[1])
+        return row_diff + column_diff
+
+    def update_position(self, new_position):
+        self.dock_position = new_position
+
+    # The fourth class is receiving_area, which is similar to the dock.
+
+
+# However, we do not have something useful with it here, but we can save it for future improvement.
+class receiving_area:
+    def __init__(self, id, position):
+        self.id = id
+        self.position = position
+
+    # Main Program
+
+
+if __name__ == "__main__":
+
+    # Initialize warehouse and dock
+    warehouse = Warehouse("Main Warehouse", layout=[(i, j) for i in range(5) for j in range(5)])
+    dock = Dock(dock_id="D1", dock_position=(0, 0))
+    # User interaction
+    while True:
+        print("\nWelcome to our Warehouse Management System")
+        print("1. Display all items in the warehouse")
+        print("2. Add a new product")
+        print("3. Remove a product")
+        print("4. Update warehouse layout")
+        print("5. Swap product locations based on demand")
+        print("6. visualize the warehouse")
+        print("7. Update the position of the dock")
+        print("8. Exit")
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            warehouse.display_items()
+
+        elif choice == "2":
+            product_id = input("Enter product ID: ")
+            name = input("Enter product name: ")
+            category = input("Enter product category: ")
+            quantity = int(input("Enter product quantity: "))
+            location = tuple(map(int, input("Enter product location (row, col): ").split(',')))
+            recent_demand = int(input("Enter recent demand: "))
+            product = Product(product_id, name, category, quantity, recent_demand)
+            warehouse.add_product(product, location)
+
+        elif choice == "3":
+            product_id = input("Enter product ID to remove: ")
+            warehouse.remove_product(product_id)
+
+        elif choice == "4":
+            # Asking user for input to create a new warehouse layout
+            num_rows = int(input("Enter new number of rows: "))  # User inputs the number of rows
+            num_cols = int(input("Enter new number of columns: "))  # User inputs the number of columns
+            # Generate the new layout: a list of tuples (i, j) where i is the row and j is the column
+            new_layout = [(i, j) for i in range(num_rows) for j in range(num_cols)]
+            warehouse.update_layout(new_layout)
+
+        elif choice == "5":
+            product_id_1 = input("Enter first product ID to swap: ")
+            product_id_2 = input("Enter second product ID to swap: ")
+            warehouse.swap_products_based_on_demand(product_id_1, product_id_2, dock)
+
+        elif choice == "6":
+            warehouse.visualize_layout(dock.dock_position)
+
+        elif choice == "7":
+            new_position = tuple(map(int, input("Enter dock position (row, col): ").split(',')))
+            dock.update_position(new_position)
+
+        elif choice == "8":
+            print("Exiting program. Goodbye and See you again!")
+            break
+
+        else:
+            print("Invalid choice. Please try again.")
+
